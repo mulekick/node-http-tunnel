@@ -1,0 +1,21 @@
+{
+  "name": "http-tunnel-input",
+  "version": "1.0.0",
+  "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
+  "main": "proxy.js",
+  "scripts": {
+    "tunnel-http": "bash tunnel.sh tunnel-setup http",
+    "tunnel-tcp": "bash tunnel.sh tunnel-setup tcp",
+    "exit": "bash tunnel.sh tunnel-exit"
+  },
+  "dependencies":{
+    "chalk": "^4.1.0"
+  },
+  "devDependencies":{},
+  "engines": {
+    "node": ">= 12.18.2",
+    "npm": ">= 6.14.8"
+  },
+  "author": "mulekick",
+  "license": "ISC"
+}

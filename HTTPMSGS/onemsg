@@ -1,0 +1,8 @@
+GET / HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+-----
