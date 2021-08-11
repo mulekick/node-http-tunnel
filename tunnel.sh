@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # tmux session name
-sname="http-tunnel-input"
+sname="node-http-tunnel"
 # remote host command, redirect stderr to stdout
 rcommand="node scripts/remote.js $2 2>&1"
 # proxy command, redirect stderr to stdout

@@ -1,5 +1,5 @@
 {
-  "name": "http-tunnel-input",
+  "name": "node-http-tunnel",
   "version": "1.0.0",
   "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
   "main": "proxy.js",
