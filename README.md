@@ -46,7 +46,7 @@ The echo server can run in two modes :
 
 ## how to install
 Navigate to your install directory and type :
-   - git clone https://github.com/mulekick/node-http-tunnel.git
+   - git clone git@github.com:mulekick/node-http-tunnel.git
    - cd node-http-tunnel
    - npm install
 
@@ -76,5 +76,5 @@ When in the node-http-tunnel directory, type :
 ## Notes
 - Some basic knowledge of tmux navigation commands (C-b up, down, etc ...) is required.
 - Some sample well-formatted HTTP messages are hereby provided in /HTTPMSGS (cat these directly in the client's named pipes when the remote server runs in HTTP mode).
-- Reminder : **IETF defined that line endings for HTTP messages must be CRLF** (https://datatracker.ietf.org/doc/html/rfc2616). The Node.js HTTP parser won't have it if you do otherwise.
-- What is HTTP tunneling : https://en.wikipedia.org/wiki/HTTP_tunnel
+- Reminder : [IETF defined that line endings for HTTP messages must be CRLF](https://datatracker.ietf.org/doc/html/rfc2616). The Node.js HTTP parser won't have it if you do otherwise.
+- [What is HTTP tunneling](https://en.wikipedia.org/wiki/HTTP_tunnel)
