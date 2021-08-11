@@ -63,7 +63,7 @@ When in the node-http-tunnel directory, type one of the following commands :
    2. starts the proxy server on localhost:1337
    3. starts 2 client processes
 
-In both cases, a named pipe will be created for each client and redirected to their stdins, so echo or cat whatever you want to this named pipe to have the client send it to the echo server. This is done so as to keep client's stdout in the foreground and view the events occuring there. An explicit invite containin the named pipe's path will be displayed on client stdout at startup.
+In both cases, a named pipe will be created for each client and redirected to their stdins, so echo or cat whatever you want to this named pipe to have the client send it to the echo server. This is done so as to keep client's stdout in the foreground and view the events occuring there. An explicit invite containing the named pipe's path will be displayed on client stdout at startup.
 
 ## how to stop
 When in the node-http-tunnel directory, type :

@@ -133,5 +133,5 @@ if (mode === `http`) {
 
 srv.listen(p, s, () => {
     process.stdout.write(dashline);
-    process.stdout.write(`\nremote host running at with pid ${ process.pid } http://${ s }:${ p }`);
+    process.stdout.write(`\nremote host running with pid ${ process.pid } at http://${ s }:${ p }`);
 });
