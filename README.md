@@ -46,7 +46,7 @@ The echo server can run in two modes :
 
 ## how to install
 Navigate to your install directory and type :
-   - git clone git@github.com:mulekick/node-http-tunnel.git
+   - git clone https://github.com/mulekick/node-http-tunnel.git
    - cd node-http-tunnel
    - npm install
 
