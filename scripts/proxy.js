@@ -13,7 +13,7 @@ const
     [ h, p ] = [ `localhost`, 1443 ],
     // 5: TLS_AES_128_GCM_SHA256 (TLS v1.3, CHROME OK) - ECDSA key pair generated using curve prime256v1
     // TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD
-    // provide ECDSA private key, x509 certificate with ECDSA public key, ECDH parameters for key exchange (named curve to use for ECDH key agreement is P-384)
+    // provide ECDSA private key, x509 certificate with ECDSA public key, ECDH parameters for key exchange (named curve to use for ECDH key agreement is P-256)
     tlsOpts = {
         // tls.Server options
         ciphers: `TLS_AES_128_GCM_SHA256`,
