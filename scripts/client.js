@@ -2,34 +2,42 @@
 
 const
     // ---------------------------------------------------------------------------------
-    dashline = `\n---------------------------------`,
-    // ---------------------------------------------------------------------------------
     // load modules
     chalk = require(`chalk`),
     {Writable} = require(`stream`),
-    http = require(`http`),
+    {request} = require(`https`),
     // ---------------------------------------------------------------------------------
     // initialize params
     [ mode ] = process.argv.slice(2),
     msep = mode === `http` ? 0x2d2d2d2d2d : 0x0a,
     options = {
-        port: 1337,
+        port: 1443,
         host: `localhost`,
         method: `CONNECT`,
         path: `localhost:8080`,
         headers: {
             [`user-agent`]: `Node-js client`
-        }
+        },
+        // Allow self-signed certificate
+        rejectUnauthorized: false
     },
+    // ---------------------------------------------------------------------------------
+    timestamp = () => {
+        const
+            d = new Date(),
+            [ hr, mn, ss ] = [ d.getHours(), d.getMinutes(), d.getSeconds() ]
+                .map(x => (`${ x }`.length === 1 ? `0${ x }` : `${ x }`));
+        return `${ hr }:${ mn }:${ ss }.${ d.getMilliseconds() }`;
+    },
+    dashline = `\n---------------------------------`,
     // ---------------------------------------------------------------------------------
 
     // create HTTP CONNECT request
-    req = http
-        .request(options);
+    req = request(options);
 
 // log PID
 process.stdout.write(dashline);
-process.stdout.write(`\nclient process running with pid ${ process.pid }`);
+process.stdout.write(`\n${ timestamp() } > client process running with pid ${ process.pid }`);
 
 // send ...
 req.end();
@@ -37,8 +45,8 @@ req.end();
 req
     // eslint-disable-next-line no-unused-vars
     .on(`connect`, (res, clientSocket, head) => {
-        process.stdout.write(dashline);
-        process.stdout.write(`\nclient connected to proxy`);
+
+        process.stdout.write(`\n${ timestamp() } > client connected to proxy, TLS socket up at: ${ clientSocket.localAddress }:${ clientSocket.localPort }`);
 
         // All data, be it HTTP messages or raw bytes, will be written on a TCP socket
         // Let's work with raw buffers
@@ -46,22 +54,15 @@ req
         clientSocket
             // ---------------------------------------------------------------------------------
             .on(`data`, buf => {
-                process.stdout.write(dashline);
-                process.stdout.write(chalk.black.bgGreen(`\nreading ${ buf.length } bytes on TCP socket :`));
+                process.stdout.write(chalk.black.bgGreen(`\n${ timestamp() } > reading ${ buf.length } bytes on TCP socket:`));
                 process.stdout.write(`\n${ buf.toString(`utf8`) }`);
             })
             .on(`error`, err => {
-                process.stderr.write(dashline);
-                process.stderr.write(chalk.black.bgRedBright(`\nTCP socket emitted an error at ${ new Date().toString() }`));
-                process.stderr.write(`\n${ JSON.stringify(err) }\nexiting client with code 1`);
-                // Exit process
-                // process.exit(1);
+                process.stderr.write(chalk.black.bgRedBright(`\n${ timestamp() } > TCP socket emitted an error:`));
+                process.stderr.write(`\n${ err.message }`);
             })
             .on(`end`, () => {
-                process.stdout.write(dashline);
-                process.stdout.write(chalk.black.bgWhite(`\nno more data to read on TCP socket, exiting client with code 0\n`));
-                // Exit process
-                // process.exit(0);
+                process.stdout.write(chalk.black.bgWhite(`\n${ timestamp() } > no more data to read on TCP socket, client still up`));
             });
 
         const
@@ -69,8 +70,7 @@ req
             // eslint-disable-next-line no-unused-vars
             getwrite = bytes => new Promise((resolve, reject) => {
                 // incoming buffer
-                process.stdout.write(dashline);
-                process.stdout.write(chalk.black.bgYellow(`\nwriting ${ bytes.length } bytes on TCP socket :`));
+                process.stdout.write(chalk.black.bgYellow(`\n${ timestamp() } > writing ${ bytes.length } bytes on TCP socket:`));
                 process.stdout.write(`\n${ bytes.toString(`utf8`) }`);
                 clientSocket.write(bytes, () => resolve());
             }),
@@ -78,17 +78,14 @@ req
             sendwrite = async buf => {
                 try {
 
-                    process.stdout.write(dashline);
-                    process.stdout.write(chalk.black.bgGreen(`\nreading ${ buf.length } bytes on stdin`));
+                    process.stdout.write(chalk.black.bgGreen(`\n${ timestamp() } > reading ${ buf.length } bytes on stdin:`));
+                    process.stdout.write(`\n${ buf.toString(`utf8`) }`);
                     // trigger write of message
                     await getwrite(buf);
 
                 } catch (err) {
-                    process.stdout.write(dashline);
-                    process.stdout.write(chalk.black.bgRedBright(`\nerror occured writing on TCP socket at ${ new Date().toString() }`));
-                    process.stdout.write(`\n${ JSON.stringify(err) }\nexiting client with code 1`);
-                    // Exit process
-                    // process.exit(1);
+                    process.stdout.write(chalk.black.bgRedBright(`\n${ timestamp() } > error occured during TCP socket write:`));
+                    process.stdout.write(`\n${ err.message }`);
                 }
             };
         let
