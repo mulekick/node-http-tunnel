@@ -42,7 +42,7 @@ if (mode === `http`) {
 
             const
                 // create HTTP response message
-                body = `remote host serving ${ method } request for ${ url } at ${ new Date().toString() }\n\n`,
+                body = `remote host serving ${ method } request for ${ url } at ${ timestamp() }\n\n`,
                 buf = Buffer.from(body, `utf8`);
 
             // send headers ...
@@ -95,7 +95,7 @@ if (mode === `http`) {
                     process.stdout.write(`\n${ buf.toString(`utf8`) }`);
 
                     const
-                        msg = `remote host echoing bytes received from ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } at ${ new Date().toGMTString() }:` +
+                        msg = `remote host echoing bytes received from ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } at ${ timestamp() }:` +
                               `\n${ buf.toString(`utf8`) }`,
                         ret = Buffer.from(msg, `utf8`);
 

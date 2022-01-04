@@ -3,6 +3,8 @@ This is a Node.js implementation of HTTP tunneling (forwarding of TCP connection
 
 That will provide useful insights on what's actually happening under the hood during http or network transactions at large.
 
+**Update 01/04/2022:** client/proxy HTTP sessions are now secured by TLSv1.3, ie a TLS layer has been added at the proxy level between the clients TCP sockets and the Node.js http.server instance handling them. This is relevant architecture-wise as you picture clients connecting to a public-facing reverse proxy that will then tunnel (forward) the requests to production servers running in a local, isolated network. In such a situation, all publicly exposed traffic between the clients and the production servers is therefore encrypted.
+
 # How it works
 
 **The purpose here is to illustrate the fundamentals of proxied client/server communication, so :**
@@ -55,12 +57,12 @@ When in the node-http-tunnel directory, type one of the following commands :
 
 - **npm run tunnel-http**
    1. starts the echo server in HTTP mode on localhost:8080
-   2. starts the proxy server on localhost:1337
+   2. starts the proxy server on localhost:1443
    3. starts 2 client processes
 
 - **npm run tunnel-tcp**
    1. starts the echo server in TCP mode on localhost:8080
-   2. starts the proxy server on localhost:1337
+   2. starts the proxy server on localhost:1443
    3. starts 2 client processes
 
 In both cases, a named pipe will be created for each client and redirected to their stdins, so echo or cat whatever you want to this named pipe to have the client send it to the echo server. This is done so as to keep client's stdout in the foreground and view the events occuring there. An explicit invite containing the named pipe's path will be displayed on client stdout at startup.

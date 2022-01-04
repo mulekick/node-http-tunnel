@@ -11,9 +11,10 @@ const
     // ---------------------------------------------------------------------------------
     // initialize params
     [ h, p ] = [ `localhost`, 1443 ],
-    // 5: TLS_AES_128_GCM_SHA256 (TLS v1.3, CHROME OK) - ECDSA key pair generated using curve prime256v1
-    // TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD
-    // provide ECDSA private key, x509 certificate with ECDSA public key, ECDH parameters for key exchange (named curve to use for ECDH key agreement is P-256)
+    // TLSv1.3 cipher suite: TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD
+    // provide ECDSA private key, x509 certificate with ECDSA public key, ECDH parameters for key exchange
+    // ECDSA key pair generated using curve prime256v1
+    // Named curve to use for ECDH key agreement is P-256
     tlsOpts = {
         // tls.Server options
         ciphers: `TLS_AES_128_GCM_SHA256`,
@@ -96,7 +97,7 @@ proxy
                 process.stdout.write(`\n${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)`);
                 clientSocket.pipe(remoteSocket);
 
-                process.stdout.write(chalk.black.bgBlue(`\n${ timestamp() } > HTTP tunnel to remote host established at ${ new Date().toString() }`));
+                process.stdout.write(chalk.black.bgBlue(`\n${ timestamp() } > HTTP tunnel to remote host established.`));
             });
 
         // Handle error and closing events
@@ -120,5 +121,5 @@ proxy
 // Now that proxy is running
 proxy.listen(p, h, () => {
     process.stdout.write(dashline);
-    process.stdout.write(`\n${ timestamp() } > proxy server running with pid ${ process.pid } at http://${ h }:${ p }`);
+    process.stdout.write(`\n${ timestamp() } > proxy server running with pid ${ process.pid } at https://${ h }:${ p }`);
 });
