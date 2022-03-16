@@ -12,15 +12,13 @@ const
     // initialize params
     [ h, p ] = [ `localhost`, 1443 ],
     // TLSv1.3 cipher suite: TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD
-    // provide ECDSA private key, x509 certificate with ECDSA public key, ECDH parameters for key exchange
-    // ECDSA key pair generated using curve prime256v1
-    // Named curve to use for ECDH key agreement is P-256
+    // provide ECDSA private key, x509 certificate with ECDSA public key
+    // Named curve for ECDSA key pair generation and ECDH key agreement is prime256v1
     tlsOpts = {
         // tls.Server options
         ciphers: `TLS_AES_128_GCM_SHA256`,
         key: readFileSync(`./.node.http.tunnel.ecdsa.prime256v1`),
         cert: readFileSync(`./.node.http.tunnel.ecdsa.prime256v1.crt`),
-        dhparam: readFileSync(`./.node.http.tunnel.ecdh.prime256v1`),
         ecdhCurve: `prime256v1`,
         maxVersion: `TLSv1.3`,
         minVersion: `TLSv1.3`,
