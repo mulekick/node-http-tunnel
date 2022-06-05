@@ -1,0 +1,70 @@
+GET /FeelsOkayManWine HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /FeelsWeirdMan HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /forsenS HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /monkaChrist HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /monkaHmm HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /monkaOMEGA HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /monkaS HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /nymnSmug HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /nymnWeird HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+
+GET /pepeSweat HTTP/1.1
+Host: localhost:8080
+Connection: keep-alive
+User-Agent: Node-js client
+Accept: text/plain
+Accept-Charset: utf-8
+

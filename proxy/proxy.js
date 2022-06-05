@@ -1,24 +1,24 @@
 /* eslint-disable no-unused-vars */
-'use strict';
+
+// import primitives
+import {createServer} from "https";
+import {connect} from "net";
+import {readFileSync} from "fs";
+// config module
+import {chalk, timestamp, dashline} from "./lib.js";
 
 const
     // ---------------------------------------------------------------------------------
-    // load modules
-    chalk = require(`chalk`),
-    {createServer} = require(`https`),
-    {connect} = require(`net`),
-    {readFileSync} = require(`fs`),
-    // ---------------------------------------------------------------------------------
     // initialize params
-    [ h, p ] = [ `localhost`, 1443 ],
+    [ h, p ] = [ `0.0.0.0`, 443 ],
     // TLSv1.3 cipher suite: TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD
     // provide ECDSA private key, x509 certificate with ECDSA public key
     // Named curve for ECDSA key pair generation and ECDH key agreement is prime256v1
     tlsOpts = {
         // tls.Server options
         ciphers: `TLS_AES_128_GCM_SHA256`,
-        key: readFileSync(`./.node.http.tunnel.ecdsa.prime256v1`),
-        cert: readFileSync(`./.node.http.tunnel.ecdsa.prime256v1.crt`),
+        key: readFileSync(`/src/.node.http.tunnel.ecdsa.prime256v1`),
+        cert: readFileSync(`/src/.node.http.tunnel.ecdsa.prime256v1.crt`),
         ecdhCurve: `prime256v1`,
         maxVersion: `TLSv1.3`,
         minVersion: `TLSv1.3`,
@@ -28,15 +28,6 @@ const
         allowHalfOpen: false,
         pauseOnConnect: false
     },
-    // ---------------------------------------------------------------------------------
-    timestamp = () => {
-        const
-            d = new Date(),
-            [ hr, mn, ss ] = [ d.getHours(), d.getMinutes(), d.getSeconds() ]
-                .map(x => (`${ x }`.length === 1 ? `0${ x }` : `${ x }`));
-        return `${ hr }:${ mn }:${ ss }.${ d.getMilliseconds() }`;
-    },
-    dashline = `\n---------------------------------`,
     // ---------------------------------------------------------------------------------
     // Create HTTPS/TLS tunneling proxy
     proxy = createServer(tlsOpts, (req, res) => {
@@ -50,18 +41,17 @@ proxy
     // handshake begins
     .on(`connection`, () => {
         process.stdout.write(dashline);
-        process.stdout.write(`\n${ timestamp() } > TCP connection established, beginning TLS handshake.`);
+        process.stdout.write(`${ timestamp() } > TCP connection established with client, beginning TLS handshake.\n`);
     })
     // handshake complete
     .on(`secureConnection`, tlsSocket => {
         const
-            {address, family, port} = tlsSocket.address(),
+            // get TLS cipher suite
             {name, standardName, version} = tlsSocket.getCipher();
-        process.stdout.write(`\n${ timestamp() } > TLS handshake completed.`);
-        process.stdout.write(`\n${ timestamp() } > TLS socket up at: ${ address }:${ port }, cipher suite is: ${ name } (${ version })`);
+        process.stdout.write(`${ timestamp() } > TLS handshake completed, cipher suite is: ${ name } (${ version }).\n`);
     })
     .on(`tlsClientError`, (err, tlsSocket) => {
-        process.stderr.write(`\n${ timestamp() } > An error occured before a secure connection was established: ${ err.message }`);
+        process.stderr.write(`${ timestamp() } > An error occured before a secure connection was established: ${ err.message }\n`);
         process.stderr.write(dashline);
     })
     .on(`connect`, (req, clientSocket, head) => {
@@ -69,8 +59,8 @@ proxy
             // Extract remote host from request url
             {port, hostname} = new URL(`http://${ req.url }`);
 
-        process.stdout.write(`\n${ timestamp() } > client connected over secure channel.`);
-        process.stdout.write(`\n${ timestamp() } > received tunneling request from client ${ req.headers[`user-agent`] } for remote ${ hostname }:${ port }`);
+        process.stdout.write(`${ timestamp() } > client connected over secure channel.\n`);
+        process.stdout.write(`${ timestamp() } > received tunneling request from client ${ req.headers[`user-agent`] } for remote ${ hostname }:${ port }\n`);
 
         const
             // Connect to remote host
@@ -88,14 +78,14 @@ proxy
                 remoteSocket.write(head);
 
                 // Pipe remote host TCP socket to client TCP socket
-                process.stdout.write(`\n${ timestamp() } > piping socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote) to socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client)`);
+                process.stdout.write(`${ timestamp() } > piping socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote) to socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client)\n`);
                 remoteSocket.pipe(clientSocket);
 
                 // Pipe client TCP socket to remote host TCP socket
-                process.stdout.write(`\n${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)`);
+                process.stdout.write(`${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)\n`);
                 clientSocket.pipe(remoteSocket);
 
-                process.stdout.write(chalk.black.bgBlue(`\n${ timestamp() } > HTTP tunnel to remote host established.`));
+                process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to remote host established.\n`));
             });
 
         // Handle error and closing events
@@ -105,12 +95,12 @@ proxy
                     // eslint-disable-next-line max-nested-callbacks
                     .on(`error`, err => {
                         process.stderr.write(dashline);
-                        process.stderr.write(chalk.black.bgRedBright(`\n${ timestamp() } > socket ${ x.remoteAddress }:${ x.remotePort } emitted an error : ${ err.message }.`));
+                        process.stderr.write(chalk.black.bgRedBright(`${ timestamp() } > socket ${ x.remoteAddress }:${ x.remotePort } emitted an error : ${ err.message }.\n`));
                     })
                     // eslint-disable-next-line max-nested-callbacks
                     .on(`close`, () => {
                         process.stdout.write(dashline);
-                        process.stdout.write(`\n${ timestamp() } > socket ${ x.remoteAddress }:${ x.remotePort } closed.`);
+                        process.stdout.write(`${ timestamp() } > socket ${ x.remoteAddress }:${ x.remotePort } closed.\n`);
                     });
             });
 
@@ -119,5 +109,5 @@ proxy
 // Now that proxy is running
 proxy.listen(p, h, () => {
     process.stdout.write(dashline);
-    process.stdout.write(`\n${ timestamp() } > proxy server running with pid ${ process.pid } at https://${ h }:${ p }`);
+    process.stdout.write(`${ timestamp() } > proxy server running with pid ${ process.pid } at https://${ h }:${ p }\n`);
 });

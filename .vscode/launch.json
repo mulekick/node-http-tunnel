@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [    
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "debug client 1",
+            /* "protocol":"auto",*/
+            "port": 9219,
+            "localRoot": "${workspaceFolder}/client",
+            "remoteRoot": "/src",
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "debug proxy",
+            /* "protocol":"auto",*/
+            "port": 9220,
+            "localRoot": "${workspaceFolder}/proxy",
+            "remoteRoot": "/src",
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+            ]
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "debug remote",
+            /* "protocol":"auto",*/
+            "port": 9221,
+            "localRoot": "${workspaceFolder}/remote",
+            "remoteRoot": "/src",
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+            ]
+        },
+    ]
+}
