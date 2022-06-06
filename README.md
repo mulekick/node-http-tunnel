@@ -52,7 +52,7 @@ The `server` process can run in two modes :
 
    - The process uses <code>[`http.request`](https://nodejs.org/api/http.html#httprequestoptions-callback)</code> to issue a HTTP `CONNECT` request to the `proxy` container at startup.
    - It retrieves a TCP socket (Node.js <code>[`stream.Duplex`](https://nodejs.org/api/stream.html#class-streamduplex)</code>) once the connection to `server` is established.
-   - Afterwards, it performs continuous reads from a specific [named pipe](https://en.wikipedia.org/wiki/Named_pipe) and write whatever bytes are read to the TCP socket (thus sending it to `server`).
+   - Afterwards, it performs continuous reads from a specific [named pipe](https://en.wikipedia.org/wiki/Named_pipe) using [this module](https://www.npmjs.com/package/@mulekick/file-streamer) and write whatever bytes are read to the TCP socket (thus sending it to `server`).
 
 # How to use it
 
@@ -97,7 +97,7 @@ Once the containers are started and the tmux session is up :
    4. See the traffic taking place at the [TCP socket level](https://en.wikipedia.org/wiki/Network_socket) between the `client` and `server` containers.
    5. Once you're done, type `exit` or `Ctrl-D` to exit the container and return to the spare shell.
 
-*Note: dont forget that your proxied connection will be terminated if you send anything that is not a valid HTTP message when the* `server` *container runs in HTTP mode. Some sample well-formatted HTTP messages are provided in /HTTPMSGS, cat these into `/src/client-pipe` when running in HTTP mode to have the server respond with nice [Pepe the Frog](https://en.wikipedia.org/wiki/Pepe_the_Frog) ASCII art.*
+*Note: dont forget that your proxied connection will be terminated if you send anything that is not a valid HTTP message when the* `server` *container runs in HTTP mode. Some sample well-formatted HTTP messages are provided in /HTTPMSGS, cat these into `/src/client-pipe` to have the server respond with nice [Pepe the Frog](https://en.wikipedia.org/wiki/Pepe_the_Frog) ASCII art.*
 
 ## how to stop
 When in the `node-http-tunnel` directory (in the spare shell or elsewhere), type the following command:
@@ -112,3 +112,5 @@ When in the `node-http-tunnel` directory (in the spare shell or elsewhere), type
 - Basic knowledge of tmux navigation commands (C-b up, down, etc ...) is required.
 - Reminder : [IETF defined that line endings for HTTP messages must be CRLF](https://datatracker.ietf.org/doc/html/rfc2616). The Node.js HTTP parser won't have it if you do otherwise.
 - [What is HTTP tunneling](https://en.wikipedia.org/wiki/HTTP_tunnel).
+- [In the event you need an npm module which exports Pepe the Frog ASCII art](https://www.npmjs.com/package/@mulekick/pepe-ascii).
+- The next step in this project should probably be to setup a [firewall](https://en.wikipedia.org/wiki/Firewall_(computing)) inside the `proxy` container to block irrelevant/malicious connection attempts. I may do it later using iptables. 

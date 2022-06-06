@@ -49,7 +49,7 @@ elif [[ $1 = 'build' ]]; then
 elif [[ $1 = 'start' ]]; then
 
     if [[ $# -lt 2 ]]; then
-        echo "please provide server running mode (tcp or http)"
+        echo "please provide server execution mode (tcp or http)"
         # failure
         return 1
 
@@ -65,7 +65,7 @@ elif [[ $1 = 'start' ]]; then
         if [[ $3 = 'debug' ]]; then
 
             # setup server host and proxy containers - debug mode
-            echo "creating server and reverse proxy containers ..." && \
+            echo "creating server and proxy containers ..." && \
             docker run --name "$server"  --rm -t -d --env MODE="$2" --env DEBUG=1 -p 9221:9229 "$imgr" && \
             docker run --name "$proxy"   --rm -t -d --env MODE="$2" --env DEBUG=1 -p 9220:9229 "$imgp" && \
             echo "connecting to networks ..." && \
@@ -84,7 +84,7 @@ elif [[ $1 = 'start' ]]; then
         else
 
             # setup server host and proxy containers
-            echo "creating server and reverse proxy containers ..." && \
+            echo "creating server and proxy containers ..." && \
             docker run --name "$server"  --rm -t -d --env MODE="$2" "$imgr" && \
             docker run --name "$proxy"   --rm -t -d --env MODE="$2" "$imgp" && \
             echo "connecting to networks ..." && \
@@ -140,7 +140,7 @@ elif [[ $1 = 'stop' ]]; then
     # remove clients, server and proxy containers
     echo "removing client containers ..." && \
     docker container rm -f "$client1" "$client2" && \
-    echo "removing server and reverse proxy containers ..." && \
+    echo "removing server and proxy containers ..." && \
     docker container rm -f "$server" "$proxy" && \
     echo "removing networks ..." && \
     docker network rm "$internet" "$local" && \

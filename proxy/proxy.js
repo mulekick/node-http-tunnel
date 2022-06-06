@@ -56,15 +56,17 @@ proxy
     })
     .on(`connect`, (req, clientSocket, head) => {
         const
-            // Extract remote host from request url
-            {port, hostname} = new URL(`http://${ req.url }`);
+            // extract host name
+            {hostname} = new URL(`http://${ req.url }`),
+            // extract port
+            port = req.port || 80;
 
         process.stdout.write(`${ timestamp() } > client connected over secure channel.\n`);
-        process.stdout.write(`${ timestamp() } > received tunneling request from client ${ req.headers[`user-agent`] } for server ${ hostname }:${ port }\n`);
+        process.stdout.write(`${ timestamp() } > received tunneling request from client '${ req.headers[`user-agent`] }' for server '${ hostname }:${ port }'\n`);
 
         const
             // Connect to remote host
-            remoteSocket = connect(port || 80, hostname, () => {
+            remoteSocket = connect(port, hostname, () => {
 
                 // eslint-disable-next-line prefer-template
                 const msg = `HTTP/1.1 200 Connection Established\r\n` +
@@ -85,7 +87,7 @@ proxy
                 process.stdout.write(`${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)\n`);
                 clientSocket.pipe(remoteSocket);
 
-                process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to server ${ hostname } established.\n`));
+                process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to server '${ hostname }' established.\n`));
             });
 
         // Handle error and closing events
@@ -109,5 +111,5 @@ proxy
 // Now that proxy is running
 proxy.listen(p, h, () => {
     process.stdout.write(dashline);
-    process.stdout.write(`${ timestamp() } > proxy server running with pid ${ process.pid } at https://${ h }:${ p }\n`);
+    process.stdout.write(`${ timestamp() } > proxy running with pid ${ process.pid } at https://${ h }:${ p }\n`);
 });
