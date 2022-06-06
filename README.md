@@ -1,58 +1,57 @@
 # HTTP tunneling with Node.js and Docker
 
-This is an implementation of HTTP tunneling (forwarding of clients TCP connections to a server by a proxy) that comes with a full, user-friendly monitoring interface.
-
-It will provide useful insights on what's actually happening under the hood during http or network transactions at large. Architecture-wise, you can picture it as internet clients connecting to a public-facing reverse proxy that will then tunnel (forward) the clients requests to a production server running in a local, isolated network.
+This is a network architecture prototype which illustrates the way HTTP tunneling (forwarding of TCP connections) is used to handle the internet traffic. It emulates how internet clients communicate with a production server through a public-facing reverse proxy that manages the connections as well as the incoming and outgoing traffic on behalf of the server. It comes with a full, user-friendly monitoring interface and will provide useful insights on what's actually happening under the hood during http or network transactions at large.
 
 # How it works
 
-**This project was designed with the goal of emulating the actual workings of the internet traffic:**
-   - Each process involved (clients, proxy, server) runs in a dedicated Docker container.
-   - Two Docker `bridge` networks will be involved as well, each with their own subnet mask and gateway :
-      1. `ntw-internet`: emulates the internet, to which the clients containers are connected.
-      2. `ntw-local`: emulates the local/isolated network of a business/cloud provider, to which the server container is connected.
-   - Only the proxy container will be connected to both `ntw-internet` and `ntw-local` in order to function as a reverse proxy.
+**This project was designed with the goal of emulating some actual internet traffic:**
+   - Node.js processes are used to emulate each network component : `client`, `proxy` and `server`.
+   - Each process runs inside a dedicated Docker container with its own network interface and IP address.
+   - Two Docker `bridge` networks are used as well, each with their own subnet mask and gateway:
+      1. `ntw-internet`: emulates the internet, to which the `client` containers are connected.
+      2. `ntw-local`: emulates the local isolated network of a business/cloud provider, to which the `server` container is connected.
+   - The `proxy` container is connected to both `ntw-internet` and `ntw-local` in order to function as a reverse proxy (thus having 2 network interfaces).
 
 **The purpose is also to illustrate the fundamentals of proxied client/server communication, so :**
-   - The clients processes will listen to the `http.ClientRequest` 'connect' event.
-   - From there, all the communications will be done by writing data directly to the proxied TCP connections.
-   - All events ocurring on the different processes will be written to their respective container's stdout in a user-friendly manner.
-   - A tmux session will be used to keep all containers running in the foreground and visualize their stdouts on a single screen. 
+   - At startup, the `client` process issues a request to `proxy` to open a proxied connection to `server`.
+   - It then waits for the `http.ClientRequest` `connect` event to be emitted, thus indicating that the connection is established.
+   - From there, all communications between the `client` and `server` processes happen by reading from and writing to the proxied connection's TCP socket.
+   - All events occuring on the different processes are written to their respective container's logs in a user-friendly manner.
+   - A custom tmux session is used to visualize `client`, `proxy` and `server` containers logs on a single screen and monitor the traffic.
 
-## Role of the server container
+## server container
 
-**The server container emulates a genuine production server running in an isolated network.**
+**The server container emulates a production server running in an isolated network.**
 
-The server process can run in two modes :
+The `server` process can run in two modes :
 
 1. **HTTP mode**
-   - A Node.js `http.server` instance will run on top of the proxied TCP connections.
-   - Each time a valid HTTP request is received, the server will return a valid HTTP response with code `200 (OK)`.
-   - If an invalid HTTP request is received, the server will return a valid HTTP response with code `400 (Bad Request)` and close the proxied connection. 
+   - A Node.js `http.server` instance runs on top of the proxied connections.
+   - Each time a valid HTTP request is received, `server` returns a valid HTTP response with code `200 (OK)`.
+   - When an invalid HTTP request is received, `server` returns a valid HTTP response with code `400 (Bad Request)` and closes the proxied connection. 
 
 2. **TCP mode**
-   - A Node.js `net.server` instance will run on top of the proxied TCP connections.
-   - Each time some data is read from the TCP socket, the server will echo the received bytes.
+   - A Node.js `net.server` instance runs on top of the proxied connections.
+   - Each time some data is read from a connection's TCP socket, `server` echoes the received bytes.
 
-## Role of the proxy container
+## proxy container
 
-**The proxy container emulates a public facing reverse proxy, running in an isolated network but connected to the internet**
+**The proxy container emulates a public facing reverse proxy, running in an isolated network but also connected to the internet**
 
    - It is a Node.js `http.server` instance.
-   - It will establish a connection between the client and the echo server when issued a `CONNECT` request.
-   - Once connected, it will return a TCP socket (Node.js `stream.Duplex`) to the client.
+   - It establishes a connection between `client` and `server` containers when issued a `CONNECT` request.
+   - Once connected, it returns a TCP socket (Node.js `stream.Duplex`) to the `client`.
 
-*Note: all traffic between the clients containers and the proxy is secured by TLSv1.3 (a TLS layer has been added between the clients TCP sockets and the Node.js http.server instance handling them on the proxy). In such a situation, all publicly exposed traffic between the clients and the production server is therefore encrypted.*
-
-## Role of the client container
+*Note: all traffic between `client` and `proxy` containers is secured by TLSv1.3 (a TLS layer has been added between the clients TCP sockets and the Node.js http.server instance handling them inside the proxy). In such a situation, all publicly exposed traffic between the clients and the server is therefore encrypted.*
 
 **The client container emulates a host connected to the internet, sending requests to and receiving responses from the production server through the reverse proxy**
 
    - It is a Node.js `http.request` instance.
-   - It will issue a `CONNECT` request to the proxy on startup and retrieve a TCP socket.
-   - It will perform nonstop reads from a dedicated named pipe, and write whatever is read to the TCP socket.
+   - It will issue a `CONNECT` request to the `proxy` container at startup.
+   - It retrieve a TCP socket (Node.js `stream.Duplex`) once the connection to `server` is established.
+   - Afterwards, it performs continuous reads from a specific named pipe and write whatever is read to the TCP socket.
 
-# How to run it
+# How to use it
 
 ## prerequisites
    - Linux distro or WLS2 (debian 11 recommended)
@@ -63,62 +62,47 @@ The server process can run in two modes :
    - git (version 2.30.2 recommended)
 
 ## how to install
-Navigate to your install directory and type : `git clone https://github.com/mulekick/node-http-tunnel.git`
-
-## post-installation steps
-When in the node-http-tunnel directory, type :
-1. `. tunnel.sh tls`: configure TLS by generating a certificate and a private key for the proxy.
-2. `. tunnel.sh build`: build the Docker images for the client, proxy and server containers.
+Navigate to your install directory and type the following commands sequence :
+   1. `git clone https://github.com/mulekick/node-http-tunnel.git` to clone the repository.
+   2. `cd node-http-tunnel` to cd into it.
+   3. `. tunnel.sh tls` to configure the TLS layer by generating a certificate and a private key that will be used by the `proxy` process.
+   4. `. tunnel.sh build` to build the Docker images for the `client`, `proxy` and `server` containers.
 
 ## how to start
 When in the node-http-tunnel directory, type one of the following commands :
 
 - `. tunnel.sh start http`
-   1. creates a server container running in HTTP mode (web server)
-   2. creates a proxy container
-   3. creates 2 client containers
-   4. starts a predefined tmux session allowing you to monitor the containers stdouts and providing you with a spare shell
+   - creates networks `ntw-internet` and `ntw-local`
+   - starts container `server` in HTTP mode (web server) and attaches it to `ntw-local`
+   - starts container `proxy` and attaches it to `ntw-local` and `ntw-internet`
+   - starts containers `client-1` and `client-2` and attaches them to `ntw-internet`
+   - starts a predefined tmux session allowing you to monitor the containers stdouts and providing you with a spare shell
 
 - `. tunnel.sh start tcp`
-   1. creates a server container running in TCP mode (echo server)
-   2. creates a proxy container
-   3. creates 2 client container
-   4. starts a predefined tmux session allowing you to monitor the containers stdouts and providing you with a spare shell
+   - creates networks `ntw-internet` and `ntw-local`
+   - starts container `server` in TCP mode (echo server) and attaches it to `ntw-local`
+   - starts container `proxy` and attaches it to `ntw-local` and `ntw-internet`
+   - starts containers `client-1` and `client-2` and attaches them to `ntw-internet`
+   - starts a predefined tmux session allowing you to monitor the containers stdouts and providing you with a spare shell
 
+## how to create and monitor traffic
+   1. Navigate the tmux session to access the available shell (the only window not running a foreground process).
+   2. Type `docker exec -it client-1 /bin/bash` to open a shell inside container `client-1` (or `client-2`).
+   3. Once inside the container, echo or cat whatever you want into `/src/client-pipe` to have the client send it to the server through the proxied connection.
+   4. See the traffic taking place at the TCP socket level between the `client` and `server` containers.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-In both cases, a named pipe will be created for each client and redirected to their stdins, so echo or cat whatever you want to this named pipe to have the client send it to the echo server. This is done so as to keep client's stdout in the foreground and view the events occuring there. An explicit invite containing the named pipe's path will be displayed on client stdout at startup.
+*Note: dont forget that your proxied connection will be terminated if you send anything that is not a valid HTTP message when the `server` container runs in HTTP mode. Some sample well-formatted HTTP messages are provided in /HTTPMSGS, cat these into `/src/client-pipe` to have the server respond with nice Pepe the Frog ASCII art.*
 
 ## how to stop
-When in the node-http-tunnel directory, type :
+When in the node-http-tunnel directory, type the folowing command:
 
-- **npm run exit**
-  - kills the tmux session (thus terminating all foreground processes and network connections)
-  - kills all background processes 
-  - cleans up the files in /tmp
+- `. tunnel.sh stop`
+  - stops and removes containers `client-1`, `client-2`, `server` and `proxy` (thus terminating all network connections)
+  - removes networks `ntw-internet` and `ntw-local`
+  - kills the tmux session (thus terminating all foreground processes)
 
 ## Notes
-- Some basic knowledge of tmux navigation commands (C-b up, down, etc ...) is required.
-- Some sample well-formatted HTTP messages are hereby provided in /HTTPMSGS (cat these directly in the client's named pipes when the remote server runs in HTTP mode).
+- Basic knowledge of the bash/sh shell commands (at least `cd`, `echo` and `cat`) is required.
+- Basic knowledge of tmux navigation commands (C-b up, down, etc ...) is required.
 - Reminder : [IETF defined that line endings for HTTP messages must be CRLF](https://datatracker.ietf.org/doc/html/rfc2616). The Node.js HTTP parser won't have it if you do otherwise.
-- [What is HTTP tunneling](https://en.wikipedia.org/wiki/HTTP_tunnel)
+- [What is HTTP tunneling](https://en.wikipedia.org/wiki/HTTP_tunnel).

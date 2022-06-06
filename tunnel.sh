@@ -13,16 +13,24 @@ internet='ntw-internet'
 local='ntw-local'
 
 # remote host, proxy, clients containers names
-remote='cnt-remote'
-proxy='cnt-proxy'
-client1='cnt-client-1'
-client2='cnt-client-2'
+remote='remote'
+proxy='proxy'
+client1='client-1'
+client2='client-2'
 
 # tmux session name
 sname="tunnel-session"
 
+# double check directory
+if [[ ! -x "$(pwd)/$0" ]]; then
+
+    # echo
+    echo "Please run this script from the node-http-tunnel directory."
+    # fail
+    exit 1
+
 # create SSL/TLS 1.3 configuration 
-if [[ $1 = 'tls' ]]; then
+elif [[ $1 = 'tls' ]]; then
 
     # create server private key
     openssl ecparam -param_enc named_curve -name prime256v1 -genkey -noout -outform PEM -out "$srvkey" && \
