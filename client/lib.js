@@ -38,8 +38,6 @@ class writablePipe extends Writable {
 
     _write(buf, encoding, callback) {
         // log
-        process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes from named pipe:\n`));
-        process.stdout.write(`${ buf.toString(`utf8`) }\n`);
         process.stdout.write(chalk.black.bgYellow(`${ timestamp() } > writing ${ buf.length } bytes to TCP socket:\n`));
         process.stdout.write(`${ buf.toString(`utf8`) }\n`);
         // trigger write on TCP socket
