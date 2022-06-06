@@ -46,12 +46,14 @@ if (MODE === `http`) {
             process.stdout.write(chalk.black.bgMagenta(`${ timestamp() } > received ${ method } request for ${ url } from : ${ headers[`user-agent`] }.\n`));
 
             const
+                // if the route is valid
+                [ code, msg ] = Object.hasOwnProperty.call(pepes, url) ? [ 200, pepes[url] ] : [ 404, `you just got 404'd pal` ],
                 // create HTTP response message
-                body = `remote host serving ${ method } request for ${ url } at ${ timestamp() }:\n${ pepes[url] }\n\n`,
+                body = `server replying to ${ method } request for ${ url } at ${ timestamp() }:\n${ msg }\n\n`,
                 buf = Buffer.from(body, `utf8`);
 
             // send headers ...
-            res.writeHead(200, {
+            res.writeHead(code, {
                 // HTTP dates are always expressed in GMT, never in local time
                 [`Date`]: `${ new Date().toGMTString() }`,
                 [`Connection`]: `keep-alive`,
@@ -96,15 +98,15 @@ if (MODE === `http`) {
 
             remoteSocket
                 .on(`data`, buf => {
-                    process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes on TCP socket:\n`));
+                    process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes from TCP socket:\n`));
                     process.stdout.write(`${ buf.toString(`utf8`) }\n`);
 
                     const
-                        msg = `remote host echoing bytes received from ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } at ${ timestamp() }:\n` +
+                        msg = `server echoing bytes received from ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } at ${ timestamp() }:\n` +
                               `${ buf.toString(`utf8`) }\n`,
                         ret = Buffer.from(msg, `utf8`);
 
-                    process.stdout.write(chalk.black.bgYellow(`${ timestamp() } > writing ${ ret.length } bytes on TCP socket :\n`));
+                    process.stdout.write(chalk.black.bgYellow(`${ timestamp() } > writing ${ ret.length } bytes to TCP socket :\n`));
                     process.stdout.write(`${ ret.toString(`utf8`) }`);
                     // Write response to client
                     remoteSocket.write(ret);
@@ -114,15 +116,15 @@ if (MODE === `http`) {
                     process.stderr.write(`${ err.message }\n`);
                 })
                 .on(`end`, () => {
-                    process.stdout.write(chalk.black.bgWhite(`${ timestamp() } > no more data to read on TCP socket, ending socket writes, remote host still up\n`));
+                    process.stdout.write(chalk.black.bgWhite(`${ timestamp() } > no more data to read on TCP socket, ending socket writes, echo server still up\n`));
                     // Terminares
                     remoteSocket.end();
                 });
         })
         .on(`error`, err => {
-            process.stderr.write(chalk.black.bgRedBright(`${ timestamp() } > error occured on TCP server :\n`));
+            process.stderr.write(chalk.black.bgRedBright(`${ timestamp() } > error occured on echo server :\n`));
             process.stderr.write(`${ err.message }\n`);
-            process.stderr.write(`${ timestamp() } > exiting remote host with code 1\n`);
+            process.stderr.write(`${ timestamp() } > exiting echo server with code 1\n`);
             // Exit process
             process.exit(1);
         });
@@ -130,12 +132,12 @@ if (MODE === `http`) {
 } else {
     // ============== DON'T RUN AT ALL =============
     process.stdout.write(dashline);
-    process.stdout.write(chalk.black.bgRedBright(`${ timestamp() } > no server mode specified, exiting remote host with code 1\n`));
+    process.stdout.write(chalk.black.bgRedBright(`${ timestamp() } > no server mode specified, exiting server with code 1\n`));
     // Exit process
     process.exit(1);
 }
 
 srv.listen(p, h, () => {
     process.stdout.write(dashline);
-    process.stdout.write(`${ timestamp() } > remote host running with pid ${ process.pid } at http://${ h }:${ p }\n`);
+    process.stdout.write(`${ timestamp() } > ${ MODE === `http` ? `HTTP` : `echo` } server running with pid ${ process.pid } at http://${ h }:${ p }\n`);
 });

@@ -100,7 +100,7 @@ const
                     clientSocket
                         // attach handlers
                         .on(`data`, buf => {
-                            process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes on TCP socket:\n`));
+                            process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes from TCP socket:\n`));
                             process.stdout.write(`${ buf.toString(`utf8`) }`);
                         })
                         .on(`error`, err => {

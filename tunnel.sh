@@ -144,7 +144,7 @@ elif [[ $1 = 'stop' ]]; then
     docker container rm -f "$server" "$proxy" && \
     echo "removing networks ..." && \
     docker network rm "$internet" "$local" && \
-    echo "exiting ..."
+    echo "ending tmux session ..."
     
     # kill tmux session
     tmux detach-client -s "$sname" && tmux kill-session -t "$sname"
