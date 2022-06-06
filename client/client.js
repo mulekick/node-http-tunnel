@@ -8,7 +8,7 @@ import {chalk, timestamp, dashline, writablePipe} from "./lib.js";
 const
     // ---------------------------------------------------------------------------------
     // initialize params
-    {PROXY, REMOTE} = process.env,
+    {PROXY, SERVER} = process.env,
     // ---------------------------------------------------------------------------------
     // resolve as soon as proxy is available
     proxyUp = () =>
@@ -80,7 +80,7 @@ const
             port: 443,
             host: PROXY,
             method: `CONNECT`,
-            path: `${ REMOTE }:80`,
+            path: `${ SERVER }:80`,
             headers: {
                 [`user-agent`]: `Node-js client container`
             },

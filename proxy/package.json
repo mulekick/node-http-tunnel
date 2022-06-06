@@ -1,5 +1,5 @@
 {
-  "name": "node-http-tunnel-docker",
+  "name": "node-http-tunnel",
   "version": "1.0.0",
   "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
   "type": "module",

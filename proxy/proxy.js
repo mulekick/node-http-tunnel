@@ -60,7 +60,7 @@ proxy
             {port, hostname} = new URL(`http://${ req.url }`);
 
         process.stdout.write(`${ timestamp() } > client connected over secure channel.\n`);
-        process.stdout.write(`${ timestamp() } > received tunneling request from client ${ req.headers[`user-agent`] } for remote ${ hostname }:${ port }\n`);
+        process.stdout.write(`${ timestamp() } > received tunneling request from client ${ req.headers[`user-agent`] } for server ${ hostname }:${ port }\n`);
 
         const
             // Connect to remote host
@@ -78,14 +78,14 @@ proxy
                 remoteSocket.write(head);
 
                 // Pipe remote host TCP socket to client TCP socket
-                process.stdout.write(`${ timestamp() } > piping socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote) to socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client)\n`);
+                process.stdout.write(`${ timestamp() } > piping socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (server) to socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client)\n`);
                 remoteSocket.pipe(clientSocket);
 
                 // Pipe client TCP socket to remote host TCP socket
                 process.stdout.write(`${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)\n`);
                 clientSocket.pipe(remoteSocket);
 
-                process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to remote host established.\n`));
+                process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to server ${ hostname } established.\n`));
             });
 
         // Handle error and closing events
