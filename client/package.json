@@ -6,7 +6,7 @@
   "main": "client.js",
   "dependencies":{
     "chalk": "^5.0.1",
-    "@mulekick/file-streamer": "^1.0.6"
+    "@mulekick/file-streamer": "^1.0.7"
   },
   "engines": {
     "node": ">= 16.13.2",
