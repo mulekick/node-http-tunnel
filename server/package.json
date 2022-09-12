@@ -6,7 +6,7 @@
     "main": "server.js",
     "dependencies":{
         "chalk": "^5.0.1",
-        "@mulekick/pepe-ascii": "^1.0.0"
+        "@mulekick/pepe-ascii": "^1.0.1"
     },
     "engines": {
         "node": ">=16.16.0",
