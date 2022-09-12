@@ -1,17 +1,17 @@
 {
-  "name": "node-http-tunnel",
-  "version": "1.0.0",
-  "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
-  "type": "module",
-  "main": "server.js",
-  "dependencies":{
-    "chalk": "^5.0.1",
-    "@mulekick/pepe-ascii": "^1.0.0"
-  },
-  "engines": {
-    "node": ">= 16.13.2",
-    "npm": ">= 8.7.0"
-  },
-  "author": "mulekick <moolekick@gmail.com> (https://github.com/mulekick)",
-  "license": "MIT"
+    "name": "node-http-tunnel",
+    "version": "1.0.0",
+    "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
+    "type": "module",
+    "main": "server.js",
+    "dependencies":{
+        "chalk": "^5.0.1",
+        "@mulekick/pepe-ascii": "^1.0.0"
+    },
+    "engines": {
+        "node": ">=16.16.0",
+        "npm": ">=8.11.0"
+    },
+    "author": "mulekick <moolekick@gmail.com> (https://github.com/mulekick)",
+    "license": "MIT"
 }

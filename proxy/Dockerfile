@@ -1,5 +1,5 @@
 # Use an official node.js runtime as a parent image
-FROM node:16.13-bullseye-slim
+FROM node:lts-bullseye-slim
 
 # create /src directory, install busybox
 RUN mkdir /src && \
