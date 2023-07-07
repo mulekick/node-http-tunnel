@@ -28,10 +28,10 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "debug remote",
+            "name": "debug server",
             /* "protocol":"auto",*/
             "port": 9221,
-            "localRoot": "${workspaceFolder}/remote",
+            "localRoot": "${workspaceFolder}/server",
             "remoteRoot": "/src",
             "skipFiles": [
                 "<node_internals>/**/*.js",

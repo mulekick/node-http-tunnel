@@ -1,9 +1,12 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable no-shadow, no-unused-vars, node/no-process-env */
 
 // import primitives
-import {createServer} from "https";
-import {connect} from "net";
-import {readFileSync} from "fs";
+import process from "node:process";
+import {createServer} from "node:https";
+import {connect} from "node:net";
+import {readFileSync} from "node:fs";
+import {URL} from "node:url";
+
 // config module
 import {chalk, timestamp, dashline} from "./lib.js";
 

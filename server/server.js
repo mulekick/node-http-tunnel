@@ -1,8 +1,14 @@
+/* eslint-disable node/no-process-env */
+
 // import primitives
-import * as http from "http";
-import * as net from "net";
+import process from "node:process";
+import {Buffer} from "node:buffer";
+import * as http from "node:http";
+import * as net from "node:net";
+
 // import modules
 import pepe from "@mulekick/pepe-ascii";
+
 // config module
 import {chalk, timestamp, dashline} from "./lib.js";
 
@@ -24,8 +30,8 @@ const
         [`/nymnWeird`]: pepe.nymnWeird,
         [`/pepeSweat`]: pepe.pepeSweat
     },
-    // HTTP keep alive timeout
-    kat = 6e4;
+    // socket keep alive timeout (10 minutes)
+    kat = 6e5;
     // ---------------------------------------------------------------------------------
 
 let
@@ -47,7 +53,7 @@ if (MODE === `http`) {
 
             const
                 // if the route is valid
-                [ code, msg ] = Object.hasOwnProperty.call(pepes, url) ? [ 200, pepes[url] ] : [ 404, `you just got 404'd pal` ],
+                [ code, msg ] = Object.hasOwn(pepes, url) ? [ 200, pepes[url] ] : [ 404, `you just got 404'd pal` ],
                 // create HTTP response message
                 body = `server replying to ${ method } request for ${ url } at ${ timestamp() }:\n${ msg }\n\n`,
                 buf = Buffer.from(body, `utf8`);
@@ -55,11 +61,11 @@ if (MODE === `http`) {
             // send headers ...
             res.writeHead(code, {
                 // HTTP dates are always expressed in GMT, never in local time
-                [`Date`]: `${ new Date().toGMTString() }`,
+                [`Date`]: String(new Date().toGMTString()),
                 [`Connection`]: `keep-alive`,
                 [`Server`]: `Node.js-Remote host`,
                 [`Content-Type`]: `text/plain`,
-                [`Content-Length`]: `${ body.length }`
+                [`Content-Length`]: String(body.length)
             });
 
             process.stdout.write(chalk.black.bgYellow(`${ timestamp() } > headers sent, writing ${ buf.length } bytes on TCP socket\n`));
@@ -70,11 +76,15 @@ if (MODE === `http`) {
         })
         .on(`clientError`, (err, remoteSocket) => {
             const
+                // read error
                 {bytesParsed, code, reason, rawPacket} = err,
-                // error message
-                msg = `bytes parsed : ${ bytesParsed }\n` +
-                      `code : ${ code }, reason ${ reason }\n` +
-                      `data :\n${ Buffer.from(rawPacket).toString(`utf8`) }\n`;
+                msg = code === `ERR_HTTP_REQUEST_TIMEOUT` ?
+                    // handle the socket timeout error
+                    `socket keep-alive timeout exceeded, connection closed.\n` :
+                    // default error message
+                    `bytes parsed : ${ bytesParsed }\n` +
+                    `code : ${ code }, reason ${ reason }\n` +
+                    `data :\n${ Buffer.from(rawPacket).toString(`utf8`) }\n`;
 
             // error originated from client so log to stdout
             process.stdout.write(chalk.black.bgRedBright(`${ timestamp() } > TCP socket emitted an error:\n`));
@@ -107,7 +117,7 @@ if (MODE === `http`) {
                         ret = Buffer.from(msg, `utf8`);
 
                     process.stdout.write(chalk.black.bgYellow(`${ timestamp() } > writing ${ ret.length } bytes to TCP socket :\n`));
-                    process.stdout.write(`${ ret.toString(`utf8`) }`);
+                    process.stdout.write(ret.toString(`utf8`));
                     // Write response to client
                     remoteSocket.write(ret);
                 })

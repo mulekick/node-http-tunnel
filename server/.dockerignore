@@ -1,0 +1,7 @@
+# The following files/folders will not be copied to the container
+node_modules
+
+# config files
+.eslint*
+.dockerignore
+.gitignore

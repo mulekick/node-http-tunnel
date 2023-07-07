@@ -1,4 +1,0 @@
-# exclude TLS files
-.node.http.tunnel.ec*
-# exclude eslint configuration
-.eslint*

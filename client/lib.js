@@ -1,5 +1,7 @@
 // import primitives
-import {Writable} from "stream";
+import process from "node:process";
+import {Writable} from "node:stream";
+
 // import modules
 import chalk from "chalk";
 
@@ -11,13 +13,20 @@ const
         const
             d = new Date(),
             [ hr, mn, ss ] = [ d.getHours(), d.getMinutes(), d.getSeconds() ]
-                .map(x => (`${ x }`.length === 1 ? `0${ x }` : `${ x }`));
+                .map(x => {
+                    const
+                        // avoid implicit type coercion
+                        s = String(x);
+
+                    // return
+                    return s.length === 1 ? `0${ s }` : s;
+                });
         return `${ hr }:${ mn }:${ ss }.${ d.getMilliseconds() }`;
     },
     // ---------------------------------------------------------------------------------
     dashline = `---------------------------------\n`;
 
-class writablePipe extends Writable {
+class WritablePipe extends Writable {
     constructor(socket) {
         // default options
         super({
@@ -57,4 +66,4 @@ class writablePipe extends Writable {
 // ---------------------------------------------------------------------------------
 
 // never rename exports in modules
-export {chalk, timestamp, dashline, writablePipe};
+export {chalk, timestamp, dashline, WritablePipe};

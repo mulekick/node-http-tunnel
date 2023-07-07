@@ -41,9 +41,9 @@ elif [[ $1 = 'tls' ]]; then
 elif [[ $1 = 'build' ]]; then
 
     # build client, server and proxy images
-    docker build -t $imgc client/.
-    docker build -t $imgr server/.
-    docker build -t $imgp proxy/.
+    docker build --no-cache -t $imgc client/.
+    docker build --no-cache -t $imgr server/.
+    docker build --no-cache -t $imgp proxy/.
 
 # start service
 elif [[ $1 = 'start' ]]; then

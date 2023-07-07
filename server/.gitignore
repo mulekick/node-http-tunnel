@@ -1,0 +1,4 @@
+# exclude node modules
+node_modules
+# exclude package-lock.json
+package-lock.json

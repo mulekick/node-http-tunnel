@@ -4,9 +4,12 @@
     "description": "node.js implementation of http proxy tunneling between a client and a remote host, for http messages or tcp socket data transfer",
     "type": "module",
     "main": "client.js",
-    "dependencies":{
-        "chalk": "^5.0.1",
-        "@mulekick/file-streamer": "^1.0.8"
+    "dependencies": {
+        "@mulekick/file-streamer": "^2.0.0",
+        "chalk": "^5.3.0"
+    },
+    "devDependencies": {
+        "@mulekick/eslint-config-muleslint": "^1.0.2"
     },
     "engines": {
         "node": ">=16.16.0",
@@ -15,4 +18,3 @@
     "author": "mulekick <moolekick@gmail.com> (https://github.com/mulekick)",
     "license": "MIT"
 }
-  

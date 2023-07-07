@@ -1,9 +1,14 @@
+/* eslint-disable node/no-process-env */
+
 // import primitives
-import {request} from "https";
+import process from "node:process";
+import {request} from "node:https";
+
 // import modules
-import {fileStreamer} from "@mulekick/file-streamer";
+import {FileStreamer} from "@mulekick/file-streamer";
+
 // config module
-import {chalk, timestamp, dashline, writablePipe} from "./lib.js";
+import {chalk, timestamp, dashline, WritablePipe} from "./lib.js";
 
 const
     // ---------------------------------------------------------------------------------
@@ -11,54 +16,53 @@ const
     {PROXY, SERVER} = process.env,
     // ---------------------------------------------------------------------------------
     // resolve as soon as proxy is available
-    proxyUp = () =>
-        new Promise((resolve, reject) => {
-            let
-                // timeout object
-                tmo = null;
-            const
-                // create HTTP GET request
-                req = () => request({
-                    // initialize options
-                    port: 443,
-                    host: PROXY,
-                    method: `GET`,
-                    path: `/`,
-                    headers: {
-                        [`user-agent`]: `Node-js client container`
-                    },
-                    // allow 1 second to proxy to connect
-                    timeout: 1e3,
-                    // Allow self-signed certificate
-                    rejectUnauthorized: false
+    proxyUp = () => new Promise((resolve, reject) => {
+        let
+            // timeout object
+            tmo = null;
+        const
+            // create HTTP GET request
+            req = () => request({
+                // initialize options
+                port: 443,
+                host: PROXY,
+                method: `GET`,
+                path: `/`,
+                headers: {
+                    [`user-agent`]: `Node-js client container`
+                },
+                // allow 1 second to proxy to connect
+                timeout: 1e3,
+                // Allow self-signed certificate
+                rejectUnauthorized: false
+            })
+                .on(`response`, response => {
+                    const
+                        // proxy response code
+                        {statusCode} = response;
+                    // Terminate attempts ...
+                    clearInterval(tmo);
+                    // resolve promise
+                    if (statusCode === 200)
+                        resolve();
+                    // reject promise
+                    else
+                        reject(new Error(`proxy returned code ${ statusCode }`));
                 })
-                    .on(`response`, response => {
-                        const
-                            // proxy response code
-                            {statusCode} = response;
+                .on(`error`, err => {
+                    // ignore getaddrinfo ENOTFOUND (proxy not connected to network yet)
+                    if (err.message !== `getaddrinfo ENOTFOUND ${ PROXY }`) {
                         // Terminate attempts ...
                         clearInterval(tmo);
-                        // resolve promise
-                        if (statusCode === 200)
-                            resolve();
                         // reject promise
-                        else
-                            reject(new Error(`proxy returned code ${ statusCode }`));
-                    })
-                    .on(`error`, err => {
-                        // ignore getaddrinfo ENOTFOUND (proxy not connected to network yet)
-                        if (err.message !== `getaddrinfo ENOTFOUND ${ PROXY }`) {
-                            // Terminate attempts ...
-                            clearInterval(tmo);
-                            // reject promise
-                            reject(new Error(`request emitted ${ err.message }`));
-                        }
-                    })
-                    // send ...
-                    .end();
-            // execute every 2 seconds
-            tmo = setInterval(req, 2000);
-        });
+                        reject(new Error(`request emitted ${ err.message }`));
+                    }
+                })
+                // send ...
+                .end();
+        // execute every 2 seconds
+        tmo = setInterval(req, 2000);
+    });
     // ---------------------------------------------------------------------------------
 
 (async() => {
@@ -101,7 +105,7 @@ const
                         // attach handlers
                         .on(`data`, buf => {
                             process.stdout.write(chalk.black.bgGreen(`${ timestamp() } > reading ${ buf.length } bytes from TCP socket:\n`));
-                            process.stdout.write(`${ buf.toString(`utf8`) }`);
+                            process.stdout.write(buf.toString(`utf8`));
                         })
                         .on(`error`, err => {
                             process.stderr.write(chalk.black.bgRedBright(`${ timestamp() } > TCP socket emitted an error:\n`));
@@ -116,13 +120,13 @@ const
                         // named pipe
                         cPipe = `${ process.cwd() }/client-pipe`,
                         // reader (4 bytes)
-                        streamer = new fileStreamer({bufSize: 2048, errorOnMissing: true, closeOnEOF: false});
+                        streamer = new FileStreamer({bufSize: 2048, errorOnMissing: true, closeOnEOF: false});
 
                     streamer
                         // open
                         .open(cPipe)
                         // stream file contents and pipe
-                        .on(`file`, fstr => fstr.stream().pipe(new writablePipe(clientSocket)));
+                        .on(`file`, fstr => fstr.stream().pipe(new WritablePipe(clientSocket)));
 
                     // close
                     process.on(`SIGTERM`, () => streamer.unstream().close());
