@@ -87,7 +87,7 @@ proxy
                 remoteSocket.pipe(clientSocket);
 
                 // Pipe client TCP socket to remote host TCP socket
-                process.stdout.write(`${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (remote)\n`);
+                process.stdout.write(`${ timestamp() } > piping socket ${ clientSocket.remoteAddress }:${ clientSocket.remotePort } (client) to socket ${ remoteSocket.remoteAddress }:${ remoteSocket.remotePort } (server)\n`);
                 clientSocket.pipe(remoteSocket);
 
                 process.stdout.write(chalk.black.bgBlue(`${ timestamp() } > HTTP tunnel to server '${ hostname }' established.\n`));
